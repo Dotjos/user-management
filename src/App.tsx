@@ -16,6 +16,7 @@ const DashboardContent: React.FC = () => {
   const {
     users,
     rawUsers,
+    availableRoles,
     stats,
     isLoading,
     isMutating,
@@ -63,17 +64,17 @@ const DashboardContent: React.FC = () => {
     action: () => {}
   });
 
-  // Prompt confirmation when suspending a user
+  // Prompt confirmation when deactivating a user
   const handleRequestStatusChangeConfirm = (user: User, newStatus: UserStatus) => {
-    if (newStatus === 'Suspended') {
+    if (newStatus === 'Inactive') {
       setConfirmState({
         isOpen: true,
-        title: `Suspend ${user.name}'s account?`,
-        message: `Are you sure you want to suspend ${user.name}? This will revoke their access to internal systems and invalidate active sessions immediately.`,
-        confirmText: 'Suspend Account',
-        variant: 'danger',
+        title: `Deactivate ${user.name}'s account?`,
+        message: `Are you sure you want to set ${user.name}'s status to Inactive?`,
+        confirmText: 'Deactivate',
+        variant: 'warning',
         action: () => {
-          updateStatus(user.id, 'Suspended');
+          updateStatus(user.id, 'Inactive');
           setConfirmState((prev) => ({ ...prev, isOpen: false }));
         }
       });
@@ -88,8 +89,8 @@ const DashboardContent: React.FC = () => {
     setConfirmState({
       isOpen: true,
       title: `Remove ${user?.name || 'User'}?`,
-      message: `Are you sure you want to remove this user from the organization? This action cannot be undone.`,
-      confirmText: 'Remove User',
+      message: `Are you sure you want to delete ${user?.name || 'this user'}? This will remove them from the backend.`,
+      confirmText: 'Delete User',
       variant: 'danger',
       action: () => {
         deleteUser(userId);
@@ -98,17 +99,17 @@ const DashboardContent: React.FC = () => {
     });
   };
 
-  // Prompt confirmation for bulk suspension
+  // Prompt confirmation for bulk status change
   const handleBulkStatusChange = (status: UserStatus) => {
-    if (status === 'Suspended') {
+    if (status === 'Inactive') {
       setConfirmState({
         isOpen: true,
-        title: `Suspend ${selectedIds.size} accounts?`,
-        message: `You are about to suspend access for ${selectedIds.size} users simultaneously. Are you sure you wish to proceed?`,
-        confirmText: 'Suspend Selected',
-        variant: 'danger',
+        title: `Deactivate ${selectedIds.size} accounts?`,
+        message: `You are about to mark ${selectedIds.size} users as Inactive simultaneously.`,
+        confirmText: 'Deactivate Selected',
+        variant: 'warning',
         action: () => {
-          bulkUpdateStatus('Suspended');
+          bulkUpdateStatus('Inactive');
           setConfirmState((prev) => ({ ...prev, isOpen: false }));
         }
       });
@@ -147,6 +148,7 @@ const DashboardContent: React.FC = () => {
             hasActiveFilters={hasActiveFilters}
             totalFiltered={pagination.totalItems}
             totalRaw={stats.total}
+            availableRoles={availableRoles}
             onSearchChange={setSearch}
             onStatusChange={setStatusFilter}
             onRoleChange={setRoleFilter}

@@ -1,100 +1,99 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { userApi, ApiError } from './api';
-import { User } from '../types/user';
+import { userApi, API_BASE_URL, normalizeUser, ApiError } from './api';
 
-const mockUser: User = {
-  id: 'usr_test1',
-  name: 'Test User',
-  email: 'test@example.com',
-  role: 'Developer',
-  status: 'Active',
-  avatarUrl: 'https://example.com/avatar.jpg',
-  department: 'Engineering',
-  location: 'Remote',
-  createdAt: '2023-01-01T00:00:00Z',
-  lastActiveAt: '2026-10-28T00:00:00Z',
-  notes: 'Test note'
-};
-
-describe('userApi client', () => {
+describe('userApi client with MockAPI integration', () => {
   beforeEach(() => {
     vi.restoreAllMocks();
   });
 
-  it('fetches users list with search and filter query params', async () => {
-    const mockResponse = {
-      success: true,
-      users: [mockUser],
-      total: 1,
-      stats: { total: 1, active: 1, pending: 0, suspended: 0, inactive: 0 }
+  it('normalizes raw MockAPI user correctly', () => {
+    const raw = {
+      id: '1',
+      name: 'Keegan',
+      email: 'Thalia91@yahoo.com',
+      role: 'Senior Mobility Orchestrator',
+      status: 'active'
     };
 
-    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce({
-      ok: true,
-      json: async () => mockResponse
-    } as Response);
-
-    const result = await userApi.getUsers({ search: 'test', status: 'Active', role: 'Developer' });
-
-    expect(fetchSpy).toHaveBeenCalledWith('/api/users?search=test&status=Active&role=Developer');
-    expect(result.users).toHaveLength(1);
-    expect(result.users[0].name).toBe('Test User');
+    const user = normalizeUser(raw);
+    expect(user.id).toBe('1');
+    expect(user.name).toBe('Keegan');
+    expect(user.status).toBe('Active'); // Normalizes lowercase 'active' -> 'Active'
+    expect(user.role).toBe('Senior Mobility Orchestrator');
   });
 
-  it('updates user status via PATCH /api/users/:id/status', async () => {
-    const updatedUser = { ...mockUser, status: 'Suspended' as const };
-    const mockResponse = {
-      success: true,
-      user: updatedUser,
-      message: 'Status updated to Suspended'
-    };
+  it('fetches users list from MockAPI endpoint', async () => {
+    const mockList = [
+      { id: '1', name: 'Keegan', email: 'Thalia91@yahoo.com', role: 'Senior Mobility Orchestrator', status: 'Active' },
+      { id: '2', name: 'Kurt', email: 'Abe.Crona48@yahoo.com', role: 'Chief Quality Representative', status: 'Inactive' }
+    ];
 
     const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce({
       ok: true,
-      json: async () => mockResponse
+      json: async () => mockList
     } as Response);
 
-    const result = await userApi.updateStatus('usr_test1', 'Suspended');
+    const result = await userApi.getUsers();
 
-    expect(fetchSpy).toHaveBeenCalledWith('/api/users/usr_test1/status', {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ status: 'Suspended' })
-    });
-    expect(result.user.status).toBe('Suspended');
-    expect(result.message).toBe('Status updated to Suspended');
+    expect(fetchSpy).toHaveBeenCalledWith(API_BASE_URL);
+    expect(result.users).toHaveLength(2);
+    expect(result.total).toBe(2);
+    expect(result.stats.active).toBe(1);
+    expect(result.stats.inactive).toBe(1);
   });
 
-  it('bulk updates user statuses via POST /api/users/bulk-status', async () => {
-    const mockResponse = {
-      success: true,
-      updatedCount: 2,
-      status: 'Active',
-      message: 'Successfully updated 2 users'
+  it('updates user status in MockAPI via PUT', async () => {
+    const mockUpdated = {
+      id: '1',
+      name: 'Keegan',
+      email: 'Thalia91@yahoo.com',
+      role: 'Senior Mobility Orchestrator',
+      status: 'Inactive'
     };
 
     const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce({
       ok: true,
-      json: async () => mockResponse
+      json: async () => mockUpdated
     } as Response);
 
-    const result = await userApi.bulkUpdateStatus(['usr_1', 'usr_2'], 'Active');
+    const result = await userApi.updateStatus('1', 'Inactive');
 
-    expect(fetchSpy).toHaveBeenCalledWith('/api/users/bulk-status', {
-      method: 'POST',
+    expect(fetchSpy).toHaveBeenCalledWith(`${API_BASE_URL}/1`, {
+      method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userIds: ['usr_1', 'usr_2'], status: 'Active' })
+      body: JSON.stringify({ status: 'Inactive' })
     });
+    expect(result.user.status).toBe('Inactive');
+    expect(result.message).toContain('Keegan');
+  });
+
+  it('bulk updates user statuses in MockAPI via parallel PUT requests', async () => {
+    const mockUpdated1 = { id: '1', name: 'Keegan', status: 'Active' };
+    const mockUpdated2 = { id: '2', name: 'Kurt', status: 'Active' };
+
+    vi.spyOn(globalThis, 'fetch')
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => mockUpdated1
+      } as Response)
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => mockUpdated2
+      } as Response);
+
+    const result = await userApi.bulkUpdateStatus(['1', '2'], 'Active');
+
     expect(result.updatedCount).toBe(2);
+    expect(result.status).toBe('Active');
   });
 
-  it('throws ApiError with server error message when request fails', async () => {
+  it('throws ApiError with error message when MockAPI request fails', async () => {
     vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce({
       ok: false,
-      status: 400,
-      json: async () => ({ error: 'Invalid status specified' })
+      status: 404,
+      json: async () => ({ error: 'User not found' })
     } as Response);
 
-    await expect(userApi.updateStatus('usr_1', 'Invalid' as any)).rejects.toThrow(ApiError);
+    await expect(userApi.updateStatus('999', 'Active')).rejects.toThrow(ApiError);
   });
 });

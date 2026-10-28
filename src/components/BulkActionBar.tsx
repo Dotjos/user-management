@@ -1,6 +1,6 @@
 import React from 'react';
 import { UserStatus } from '../types/user';
-import { CheckCircle2, ShieldAlert, MinusCircle, X, Layers } from 'lucide-react';
+import { CheckCircle2, MinusCircle, X, Layers } from 'lucide-react';
 
 interface BulkActionBarProps {
   selectedCount: number;
@@ -40,16 +40,6 @@ export const BulkActionBar: React.FC<BulkActionBarProps> = ({
           >
             <CheckCircle2 className="w-3.5 h-3.5" />
             <span>Set Active</span>
-          </button>
-
-          <button
-            type="button"
-            disabled={isMutating}
-            onClick={() => onBulkUpdateStatus('Suspended')}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-rose-500/20 text-rose-300 hover:bg-rose-500/30 transition-colors cursor-pointer"
-          >
-            <ShieldAlert className="w-3.5 h-3.5" />
-            <span>Suspend</span>
           </button>
 
           <button

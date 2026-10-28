@@ -1,6 +1,6 @@
 import React from 'react';
 import { UserStatus } from '../types/user';
-import { CheckCircle2, Clock, AlertOctagon, MinusCircle } from 'lucide-react';
+import { CheckCircle2, MinusCircle } from 'lucide-react';
 
 interface StatusBadgeProps {
   status: UserStatus;
@@ -20,18 +20,6 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({
           bg: 'bg-emerald-50 text-emerald-700 border-emerald-200/80',
           dot: 'bg-emerald-500',
           icon: CheckCircle2
-        };
-      case 'Pending':
-        return {
-          bg: 'bg-amber-50 text-amber-700 border-amber-200/80',
-          dot: 'bg-amber-500',
-          icon: Clock
-        };
-      case 'Suspended':
-        return {
-          bg: 'bg-rose-50 text-rose-700 border-rose-200/80',
-          dot: 'bg-rose-500',
-          icon: AlertOctagon
         };
       case 'Inactive':
       default:

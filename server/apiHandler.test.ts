@@ -64,7 +64,7 @@ describe('Backend API Handler', () => {
   });
 
   it('GET /api/users filters by status and search query', async () => {
-    const req = createMockReq('/api/users?status=Suspended&search=liam', 'GET');
+    const req = createMockReq('/api/users?status=Inactive&search=liam', 'GET');
     const { res, getResult } = createMockRes();
 
     await handleApiRequest(req, res);
@@ -73,11 +73,11 @@ describe('Backend API Handler', () => {
     expect(statusCode).toBe(200);
     expect(data.users.length).toBe(1);
     expect(data.users[0].name).toBe('Liam Gallagher');
-    expect(data.users[0].status).toBe('Suspended');
+    expect(data.users[0].status).toBe('Inactive');
   });
 
   it('PATCH /api/users/:id/status updates status in the database', async () => {
-    const req = createMockReq('/api/users/usr_01/status', 'PATCH', { status: 'Suspended' });
+    const req = createMockReq('/api/users/1/status', 'PATCH', { status: 'Inactive' });
     const { res, getResult } = createMockRes();
 
     await handleApiRequest(req, res);
@@ -85,17 +85,17 @@ describe('Backend API Handler', () => {
 
     expect(statusCode).toBe(200);
     expect(data.success).toBe(true);
-    expect(data.user.status).toBe('Suspended');
+    expect(data.user.status).toBe('Inactive');
 
     // Verify database state updated
     const db = getDb();
-    const updated = db.find((u) => u.id === 'usr_01');
-    expect(updated?.status).toBe('Suspended');
+    const updated = db.find((u) => u.id === '1');
+    expect(updated?.status).toBe('Inactive');
   });
 
   it('POST /api/users/bulk-status updates multiple users simultaneously', async () => {
     const req = createMockReq('/api/users/bulk-status', 'POST', {
-      userIds: ['usr_01', 'usr_02'],
+      userIds: ['1', '2'],
       status: 'Inactive'
     });
     const { res, getResult } = createMockRes();
@@ -108,8 +108,8 @@ describe('Backend API Handler', () => {
     expect(data.updatedCount).toBe(2);
 
     const db = getDb();
-    expect(db.find((u) => u.id === 'usr_01')?.status).toBe('Inactive');
-    expect(db.find((u) => u.id === 'usr_02')?.status).toBe('Inactive');
+    expect(db.find((u) => u.id === '1')?.status).toBe('Inactive');
+    expect(db.find((u) => u.id === '2')?.status).toBe('Inactive');
   });
 
   it('POST /api/users creates a new user', async () => {
@@ -117,9 +117,7 @@ describe('Backend API Handler', () => {
       name: 'Grace Hopper',
       email: 'grace@acme.inc',
       role: 'Admin',
-      status: 'Active',
-      department: 'Architecture',
-      location: 'New York, NY'
+      status: 'Active'
     };
     const req = createMockReq('/api/users', 'POST', newUserInput);
     const { res, getResult } = createMockRes();
@@ -137,7 +135,7 @@ describe('Backend API Handler', () => {
   });
 
   it('DELETE /api/users/:id removes a user', async () => {
-    const req = createMockReq('/api/users/usr_01', 'DELETE');
+    const req = createMockReq('/api/users/1', 'DELETE');
     const { res, getResult } = createMockRes();
 
     await handleApiRequest(req, res);
@@ -147,12 +145,12 @@ describe('Backend API Handler', () => {
     expect(data.success).toBe(true);
 
     const db = getDb();
-    expect(db.some((u) => u.id === 'usr_01')).toBe(false);
+    expect(db.some((u) => u.id === '1')).toBe(false);
   });
 
   it('POST /api/reset resets database to initial seed dataset', async () => {
     // Delete one user first
-    const delReq = createMockReq('/api/users/usr_01', 'DELETE');
+    const delReq = createMockReq('/api/users/1', 'DELETE');
     const { res: delRes } = createMockRes();
     await handleApiRequest(delReq, delRes);
 
@@ -165,6 +163,6 @@ describe('Backend API Handler', () => {
     expect(statusCode).toBe(200);
     expect(data.count).toBe(14);
     const db = getDb();
-    expect(db.some((u) => u.id === 'usr_01')).toBe(true);
+    expect(db.some((u) => u.id === '1')).toBe(true);
   });
 });

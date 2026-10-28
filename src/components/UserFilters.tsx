@@ -1,12 +1,13 @@
 import React, { useRef, useEffect } from 'react';
 import { UserFilters as FilterStateType, UserStatus, UserRole, SortField } from '../types/user';
-import { Search, X, RotateCcw, ArrowUpDown, Filter, ChevronDown } from 'lucide-react';
+import { Search, X, RotateCcw, Filter } from 'lucide-react';
 
 interface UserFiltersProps {
   filters: FilterStateType;
   hasActiveFilters: boolean;
   totalFiltered: number;
   totalRaw: number;
+  availableRoles?: string[];
   onSearchChange: (query: string) => void;
   onStatusChange: (status: 'All' | UserStatus) => void;
   onRoleChange: (role: 'All' | UserRole) => void;
@@ -20,6 +21,7 @@ export const UserFilters: React.FC<UserFiltersProps> = ({
   hasActiveFilters,
   totalFiltered,
   totalRaw,
+  availableRoles = [],
   onSearchChange,
   onStatusChange,
   onRoleChange,
@@ -43,7 +45,7 @@ export const UserFilters: React.FC<UserFiltersProps> = ({
 
   return (
     <div className="bg-white rounded-xl border border-gray-200/80 p-4 shadow-sm space-y-3">
-      {/* Top row: Search and primary selects */}
+      {/* Top row: Search and dropdowns */}
       <div className="flex flex-col md:flex-row gap-3">
         {/* Search Input */}
         <div className="relative flex-1">
@@ -55,7 +57,7 @@ export const UserFilters: React.FC<UserFiltersProps> = ({
             type="text"
             value={filters.search}
             onChange={(e) => onSearchChange(e.target.value)}
-            placeholder="Search by name, email, department, role... (press '/' to focus)"
+            placeholder="Search by name, email, role, or ID... (press '/' to focus)"
             className="w-full pl-10 pr-9 py-2 rounded-lg border border-gray-200 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all bg-gray-50/40 hover:bg-white"
           />
           {filters.search && (
@@ -70,67 +72,52 @@ export const UserFilters: React.FC<UserFiltersProps> = ({
           )}
         </div>
 
-        {/* Filter Selects */}
-        <div className="flex flex-wrap sm:flex-nowrap items-center gap-2">
-          {/* Status Filter */}
-          <div className="relative min-w-[140px] flex-1 sm:flex-initial">
-            <select
-              value={filters.status}
-              onChange={(e) => onStatusChange(e.target.value as 'All' | UserStatus)}
-              className="w-full appearance-none pl-3 pr-8 py-2 text-sm rounded-lg border border-gray-200 bg-white text-gray-800 font-medium hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 cursor-pointer"
-            >
-              <option value="All">All Statuses</option>
-              <option value="Active">Active</option>
-              <option value="Pending">Pending</option>
-              <option value="Suspended">Suspended</option>
-              <option value="Inactive">Inactive</option>
-            </select>
-            <ChevronDown className="w-4 h-4 text-gray-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-          </div>
+        {/* Status Dropdown */}
+        <select
+          value={filters.status}
+          onChange={(e) => onStatusChange(e.target.value as 'All' | UserStatus)}
+          className="px-3 py-2 rounded-lg border border-gray-200 text-sm text-gray-700 bg-gray-50/40 hover:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all cursor-pointer min-w-[140px]"
+        >
+          <option value="All">All Statuses</option>
+          <option value="Active">Active</option>
+          <option value="Inactive">Inactive</option>
+        </select>
 
-          {/* Role Filter */}
-          <div className="relative min-w-[130px] flex-1 sm:flex-initial">
-            <select
-              value={filters.role}
-              onChange={(e) => onRoleChange(e.target.value as 'All' | UserRole)}
-              className="w-full appearance-none pl-3 pr-8 py-2 text-sm rounded-lg border border-gray-200 bg-white text-gray-800 font-medium hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 cursor-pointer"
-            >
-              <option value="All">All Roles</option>
-              <option value="Admin">Admin</option>
-              <option value="Manager">Manager</option>
-              <option value="Developer">Developer</option>
-              <option value="Designer">Designer</option>
-              <option value="Support">Support</option>
-            </select>
-            <ChevronDown className="w-4 h-4 text-gray-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-          </div>
+        {/* Role Dropdown */}
+        <select
+          value={filters.role}
+          onChange={(e) => onRoleChange(e.target.value as 'All' | UserRole)}
+          className="px-3 py-2 rounded-lg border border-gray-200 text-sm text-gray-700 bg-gray-50/40 hover:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all cursor-pointer min-w-[140px]"
+        >
+          <option value="All">All Roles</option>
+          {availableRoles.map((r) => (
+            <option key={r} value={r}>{r}</option>
+          ))}
+        </select>
 
-          {/* Sort By Field */}
-          <div className="relative min-w-[140px] flex-1 sm:flex-initial">
-            <select
-              value={filters.sortBy}
-              onChange={(e) => onSortChange(e.target.value as SortField)}
-              className="w-full appearance-none pl-3 pr-8 py-2 text-sm rounded-lg border border-gray-200 bg-white text-gray-800 font-medium hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 cursor-pointer"
-            >
-              <option value="createdAt">Date Joined</option>
-              <option value="lastActiveAt">Last Active</option>
-              <option value="name">Name</option>
-              <option value="role">Role</option>
-              <option value="status">Status</option>
-            </select>
-            <ChevronDown className="w-4 h-4 text-gray-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-          </div>
+        {/* Sort Dropdown */}
+        <select
+          value={filters.sortBy}
+          onChange={(e) => onSortChange(e.target.value as SortField)}
+          className="px-3 py-2 rounded-lg border border-gray-200 text-sm text-gray-700 bg-gray-50/40 hover:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all cursor-pointer min-w-[130px]"
+        >
+          <option value="id">Sort by ID</option>
+          <option value="name">Sort by Name</option>
+          <option value="email">Sort by Email</option>
+          <option value="role">Sort by Role</option>
+          <option value="status">Sort by Status</option>
+        </select>
 
-          {/* Sort Order Toggle */}
-          <button
-            type="button"
-            onClick={onSortOrderToggle}
-            title={`Sort ${filters.sortOrder === 'asc' ? 'Descending' : 'Ascending'}`}
-            className="p-2 rounded-lg border border-gray-200 hover:border-gray-300 hover:bg-gray-50 text-gray-600 transition-colors cursor-pointer"
-          >
-            <ArrowUpDown className="w-4 h-4" />
-          </button>
-        </div>
+        {/* Sort Order Toggle */}
+        <button
+          type="button"
+          onClick={onSortOrderToggle}
+          className="px-3 py-2 rounded-lg border border-gray-200 text-sm text-gray-600 bg-gray-50/40 hover:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all"
+          aria-label={`Sort ${filters.sortOrder === 'asc' ? 'descending' : 'ascending'}`}
+          title={filters.sortOrder === 'asc' ? 'Ascending ↑' : 'Descending ↓'}
+        >
+          {filters.sortOrder === 'asc' ? '↑ Asc' : '↓ Desc'}
+        </button>
       </div>
 
       {/* Bottom meta row: Results count and Reset Button */}

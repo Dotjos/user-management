@@ -1,6 +1,6 @@
 import React from 'react';
 import { UserStats, UserStatus } from '../types/user';
-import { Users, UserCheck, Clock, ShieldAlert } from 'lucide-react';
+import { Users, UserCheck, UserX } from 'lucide-react';
 
 interface StatsCardsProps {
   stats: UserStats;
@@ -44,29 +44,19 @@ export const StatsCards: React.FC<StatsCardsProps> = ({
       activeRing: 'border-emerald-500 ring-2 ring-emerald-500/10 bg-emerald-50/20'
     },
     {
-      id: 'Pending',
-      title: 'Pending Verification',
-      count: stats.pending,
-      icon: Clock,
-      iconBg: 'bg-amber-50',
-      iconColor: 'text-amber-600',
-      borderHover: 'hover:border-amber-300',
-      activeRing: 'border-amber-500 ring-2 ring-amber-500/10 bg-amber-50/20'
-    },
-    {
-      id: 'Suspended',
-      title: 'Suspended Users',
-      count: stats.suspended,
-      icon: ShieldAlert,
-      iconBg: 'bg-rose-50',
-      iconColor: 'text-rose-600',
-      borderHover: 'hover:border-rose-300',
-      activeRing: 'border-rose-500 ring-2 ring-rose-500/10 bg-rose-50/20'
+      id: 'Inactive',
+      title: 'Inactive Accounts',
+      count: stats.inactive,
+      icon: UserX,
+      iconBg: 'bg-slate-100',
+      iconColor: 'text-slate-600',
+      borderHover: 'hover:border-slate-300',
+      activeRing: 'border-slate-500 ring-2 ring-slate-500/10 bg-slate-50/40'
     }
   ];
 
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
       {cards.map((card) => {
         const Icon = card.icon;
         const isSelected = currentFilter === card.id;

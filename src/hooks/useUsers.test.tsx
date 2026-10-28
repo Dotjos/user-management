@@ -8,40 +8,25 @@ import React from 'react';
 
 const mockUsers: User[] = [
   {
-    id: 'usr_1',
+    id: '1',
     name: 'Sarah Connor',
     email: 'sarah@acme.inc',
     role: 'Admin',
-    status: 'Active',
-    avatarUrl: 'https://example.com/sarah.jpg',
-    department: 'Engineering',
-    location: 'San Francisco, CA',
-    createdAt: '2023-01-01T00:00:00Z',
-    lastActiveAt: '2026-10-28T10:00:00Z'
+    status: 'Active'
   },
   {
-    id: 'usr_2',
+    id: '2',
     name: 'Marcus Vance',
     email: 'marcus@acme.inc',
     role: 'Developer',
-    status: 'Suspended',
-    avatarUrl: 'https://example.com/marcus.jpg',
-    department: 'Engineering',
-    location: 'Austin, TX',
-    createdAt: '2023-02-01T00:00:00Z',
-    lastActiveAt: '2026-10-28T09:00:00Z'
+    status: 'Inactive'
   },
   {
-    id: 'usr_3',
+    id: '3',
     name: 'Elena Rostova',
     email: 'elena@acme.inc',
     role: 'Manager',
-    status: 'Pending',
-    avatarUrl: 'https://example.com/elena.jpg',
-    department: 'Product',
-    location: 'Seattle, WA',
-    createdAt: '2023-03-01T00:00:00Z',
-    lastActiveAt: '2026-10-28T08:00:00Z'
+    status: 'Active'
   }
 ];
 
@@ -55,7 +40,7 @@ describe('useUsers hook', () => {
     vi.spyOn(userApi, 'getUsers').mockResolvedValue({
       users: mockUsers,
       total: mockUsers.length,
-      stats: { total: 3, active: 1, pending: 1, suspended: 1, inactive: 0 }
+      stats: { total: 3, active: 2, inactive: 1 }
     });
   });
 
@@ -68,9 +53,8 @@ describe('useUsers hook', () => {
 
     expect(result.current.rawUsers).toHaveLength(3);
     expect(result.current.stats.total).toBe(3);
-    expect(result.current.stats.active).toBe(1);
-    expect(result.current.stats.suspended).toBe(1);
-    expect(result.current.stats.pending).toBe(1);
+    expect(result.current.stats.active).toBe(2);
+    expect(result.current.stats.inactive).toBe(1);
   });
 
   it('filters users by search query', async () => {
@@ -96,7 +80,7 @@ describe('useUsers hook', () => {
     });
 
     act(() => {
-      result.current.setStatusFilter('Suspended');
+      result.current.setStatusFilter('Inactive');
     });
 
     expect(result.current.users).toHaveLength(1);
@@ -126,10 +110,10 @@ describe('useUsers hook', () => {
     });
 
     act(() => {
-      result.current.toggleSelect('usr_1');
+      result.current.toggleSelect('1');
     });
 
-    expect(result.current.selectedIds.has('usr_1')).toBe(true);
+    expect(result.current.selectedIds.has('1')).toBe(true);
 
     act(() => {
       result.current.selectAll();
@@ -146,7 +130,7 @@ describe('useUsers hook', () => {
 
   it('updates user status with optimistic state update', async () => {
     const updateSpy = vi.spyOn(userApi, 'updateStatus').mockResolvedValueOnce({
-      user: { ...mockUsers[0], status: 'Suspended' },
+      user: { ...mockUsers[0], status: 'Inactive' },
       message: 'Status updated'
     });
 
@@ -157,11 +141,21 @@ describe('useUsers hook', () => {
     });
 
     await act(async () => {
-      await result.current.updateStatus('usr_1', 'Suspended');
+      await result.current.updateStatus('1', 'Inactive');
     });
 
-    expect(updateSpy).toHaveBeenCalledWith('usr_1', 'Suspended');
-    const updated = result.current.rawUsers.find((u) => u.id === 'usr_1');
-    expect(updated?.status).toBe('Suspended');
+    expect(updateSpy).toHaveBeenCalledWith('1', 'Inactive');
+    const updated = result.current.rawUsers.find((u) => u.id === '1');
+    expect(updated?.status).toBe('Inactive');
+  });
+
+  it('computes available unique roles from loaded dataset', async () => {
+    const { result } = renderHook(() => useUsers(), { wrapper });
+
+    await waitFor(() => {
+      expect(result.current.isLoading).toBe(false);
+    });
+
+    expect(result.current.availableRoles).toEqual(['Admin', 'Developer', 'Manager']);
   });
 });

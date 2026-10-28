@@ -1,12 +1,27 @@
 import { IncomingMessage, ServerResponse } from 'http';
-import { INITIAL_USERS } from './data';
-import { User, UserStatus, UserRole } from '../src/types/user';
+import { User, UserStatus } from '../src/types/user';
+
+export const INITIAL_USERS: User[] = [
+  { id: '1', name: 'Sarah Connor', email: 'sarah.connor@acme.inc', role: 'Admin', status: 'Active' },
+  { id: '2', name: 'Marcus Vance', email: 'marcus.vance@acme.inc', role: 'Developer', status: 'Active' },
+  { id: '3', name: 'Elena Rostova', email: 'elena.rostova@acme.inc', role: 'Manager', status: 'Active' },
+  { id: '4', name: 'Devon Lee', email: 'devon.lee@acme.inc', role: 'Designer', status: 'Inactive' },
+  { id: '5', name: 'Aisha Al-Mansoor', email: 'aisha.m@acme.inc', role: 'Admin', status: 'Active' },
+  { id: '6', name: 'Liam Gallagher', email: 'liam.g@acme.inc', role: 'Support', status: 'Inactive' },
+  { id: '7', name: 'Chao Zhang', email: 'chao.zhang@acme.inc', role: 'Developer', status: 'Active' },
+  { id: '8', name: 'Chloe Bennett', email: 'chloe.bennett@acme.inc', role: 'Designer', status: 'Active' },
+  { id: '9', name: 'Mateo Morales', email: 'mateo.morales@acme.inc', role: 'Developer', status: 'Inactive' },
+  { id: '10', name: 'Rachel Green', email: 'rachel.g@acme.inc', role: 'Support', status: 'Inactive' },
+  { id: '11', name: 'Hiroshi Tanaka', email: 'hiroshi.t@acme.inc', role: 'Manager', status: 'Active' },
+  { id: '12', name: 'Zoe Kravitz', email: 'zoe.kravitz@acme.inc', role: 'Support', status: 'Inactive' },
+  { id: '13', name: 'Kofi Mensah', email: 'kofi.mensah@acme.inc', role: 'Developer', status: 'Active' },
+  { id: '14', name: 'Hannah Schmidt', email: 'hannah.s@acme.inc', role: 'Manager', status: 'Inactive' }
+];
 
 // In-memory backend database state
 let usersDb: User[] = JSON.parse(JSON.stringify(INITIAL_USERS));
 
-const VALID_STATUSES: UserStatus[] = ['Active', 'Pending', 'Suspended', 'Inactive'];
-const VALID_ROLES: UserRole[] = ['Admin', 'Manager', 'Developer', 'Designer', 'Support'];
+const VALID_STATUSES: UserStatus[] = ['Active', 'Inactive'];
 
 // Helper to parse JSON body
 function parseRequestBody(req: IncomingMessage): Promise<any> {
@@ -69,7 +84,6 @@ export async function handleApiRequest(req: IncomingMessage, res: ServerResponse
         filtered = filtered.filter(u =>
           u.name.toLowerCase().includes(search) ||
           u.email.toLowerCase().includes(search) ||
-          u.department.toLowerCase().includes(search) ||
           u.role.toLowerCase().includes(search)
         );
       }
@@ -85,8 +99,6 @@ export async function handleApiRequest(req: IncomingMessage, res: ServerResponse
       const stats = {
         total: usersDb.length,
         active: usersDb.filter(u => u.status === 'Active').length,
-        pending: usersDb.filter(u => u.status === 'Pending').length,
-        suspended: usersDb.filter(u => u.status === 'Suspended').length,
         inactive: usersDb.filter(u => u.status === 'Inactive').length,
       };
 
@@ -155,8 +167,7 @@ export async function handleApiRequest(req: IncomingMessage, res: ServerResponse
 
       usersDb[index] = {
         ...usersDb[index],
-        status,
-        lastActiveAt: new Date().toISOString()
+        status
       };
 
       sendJson(res, 200, {
@@ -187,11 +198,6 @@ export async function handleApiRequest(req: IncomingMessage, res: ServerResponse
       const index = usersDb.findIndex(u => u.id === userId);
       if (index === -1) {
         sendJson(res, 404, { success: false, error: `User with id "${userId}" not found` });
-        return true;
-      }
-
-      if (body.role && !VALID_ROLES.includes(body.role)) {
-        sendJson(res, 400, { success: false, error: `Invalid role "${body.role}"` });
         return true;
       }
 
@@ -236,30 +242,19 @@ export async function handleApiRequest(req: IncomingMessage, res: ServerResponse
     // POST /api/users (Create User)
     if (pathname === '/api/users' && method === 'POST') {
       const body = await parseRequestBody(req);
-      const { name, email, role, status = 'Active', department = 'General', location = 'Remote', notes } = body;
+      const { name, email, role, status = 'Active' } = body;
 
       if (!name || !email) {
         sendJson(res, 400, { success: false, error: 'Name and email are required fields' });
         return true;
       }
 
-      if (role && !VALID_ROLES.includes(role)) {
-        sendJson(res, 400, { success: false, error: `Invalid role "${role}"` });
-        return true;
-      }
-
       const newUser: User = {
-        id: `usr_${Date.now().toString(36)}`,
+        id: `${Date.now().toString(36)}`,
         name,
         email,
         role: role || 'Developer',
         status: VALID_STATUSES.includes(status) ? status : 'Active',
-        avatarUrl: `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(name)}`,
-        department,
-        location,
-        createdAt: new Date().toISOString(),
-        lastActiveAt: new Date().toISOString(),
-        notes: notes || ''
       };
 
       usersDb.unshift(newUser);

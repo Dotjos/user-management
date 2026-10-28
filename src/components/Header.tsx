@@ -1,16 +1,14 @@
 import React from 'react';
-import { Users2, UserPlus, RotateCcw } from 'lucide-react';
+import { Users2 } from 'lucide-react';
 
 interface HeaderProps {
-  onAddUser: () => void;
-  onResetData: () => void;
+  onAddUser?: () => void;
+  onResetData?: () => void;
   isBackendConnected: boolean;
   totalUsersCount: number;
 }
 
 export const Header: React.FC<HeaderProps> = ({
-  onAddUser,
-  onResetData,
   isBackendConnected,
   totalUsersCount
 }) => {
@@ -30,7 +28,7 @@ export const Header: React.FC<HeaderProps> = ({
                 </h1>
                 <span className="hidden sm:inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                  <span>{isBackendConnected ? 'Backend Connected' : 'Connecting...'}</span>
+                  <span>{isBackendConnected ? 'API Connected' : 'Connecting...'}</span>
                 </span>
               </div>
               <p className="text-xs text-gray-500 hidden sm:block">
@@ -39,27 +37,7 @@ export const Header: React.FC<HeaderProps> = ({
             </div>
           </div>
 
-          {/* Actions */}
-          <div className="flex items-center gap-2 sm:gap-3">
-            <button
-              type="button"
-              onClick={onResetData}
-              title="Reset dataset to initial state"
-              className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors border border-gray-200/80 cursor-pointer"
-            >
-              <RotateCcw className="w-3.5 h-3.5 text-gray-400" />
-              <span className="hidden sm:inline">Reset Demo</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={onAddUser}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-sm hover:shadow transition-all duration-150 cursor-pointer"
-            >
-              <UserPlus className="w-4 h-4" />
-              <span>Add User</span>
-            </button>
-          </div>
+  
         </div>
       </div>
     </header>

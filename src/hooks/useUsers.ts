@@ -7,8 +7,8 @@ const DEFAULT_FILTERS: UserFilters = {
   search: '',
   status: 'All',
   role: 'All',
-  sortBy: 'createdAt',
-  sortOrder: 'desc'
+  sortBy: 'id',
+  sortOrder: 'asc'
 };
 
 export function useUsers() {
@@ -25,7 +25,7 @@ export function useUsers() {
 
   // Pagination state
   const [page, setPage] = useState<number>(1);
-  const [pageSize, setPageSize] = useState<number>(8);
+  const [pageSize, setPageSize] = useState<number>(5);
 
   // Fetch users from backend
   const fetchUsers = useCallback(async () => {
@@ -65,9 +65,8 @@ export function useUsers() {
         (u) =>
           u.name.toLowerCase().includes(q) ||
           u.email.toLowerCase().includes(q) ||
-          u.department.toLowerCase().includes(q) ||
-          u.location.toLowerCase().includes(q) ||
-          u.role.toLowerCase().includes(q)
+          u.role.toLowerCase().includes(q) ||
+          u.id.includes(q)
       );
     }
 
@@ -85,14 +84,17 @@ export function useUsers() {
     result.sort((a, b) => {
       let comparison = 0;
       switch (filters.sortBy) {
+        case 'id': {
+          const numA = parseInt(a.id, 10);
+          const numB = parseInt(b.id, 10);
+          comparison = !isNaN(numA) && !isNaN(numB) ? numA - numB : a.id.localeCompare(b.id);
+          break;
+        }
         case 'name':
           comparison = a.name.localeCompare(b.name);
           break;
-        case 'createdAt':
-          comparison = new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
-          break;
-        case 'lastActiveAt':
-          comparison = new Date(a.lastActiveAt).getTime() - new Date(b.lastActiveAt).getTime();
+        case 'email':
+          comparison = a.email.localeCompare(b.email);
           break;
         case 'role':
           comparison = a.role.localeCompare(b.role);
@@ -112,10 +114,14 @@ export function useUsers() {
     return {
       total: rawUsers.length,
       active: rawUsers.filter((u) => u.status === 'Active').length,
-      pending: rawUsers.filter((u) => u.status === 'Pending').length,
-      suspended: rawUsers.filter((u) => u.status === 'Suspended').length,
       inactive: rawUsers.filter((u) => u.status === 'Inactive').length
     };
+  }, [rawUsers]);
+
+  // Extract unique roles dynamically from the user dataset
+  const availableRoles = useMemo(() => {
+    const roles = new Set(rawUsers.map((u) => u.role).filter(Boolean));
+    return Array.from(roles).sort();
   }, [rawUsers]);
 
   // Paginated subset of filtered users
@@ -212,7 +218,7 @@ export function useUsers() {
       setRawUsers((prev) =>
         prev.map((u) =>
           u.id === userId
-            ? { ...u, status: newStatus, lastActiveAt: new Date().toISOString() }
+            ? { ...u, status: newStatus }
             : u
         )
       );
@@ -344,6 +350,7 @@ export function useUsers() {
     users: paginatedUsers,
     allFilteredUsers: filteredUsers,
     rawUsers,
+    availableRoles,
     stats: currentStats,
     isLoading,
     isMutating,

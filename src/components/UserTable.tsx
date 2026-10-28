@@ -74,7 +74,7 @@ export const UserTable: React.FC<UserTableProps> = ({
     <div className="bg-white rounded-xl border border-gray-200/80 shadow-sm overflow-hidden">
       <div className="overflow-x-auto">
         <table className="w-full text-left border-collapse">
-          {/* Table Header */}
+          {/* Table Header designed to match { id, name, email, role, status } */}
           <thead className="bg-gray-50/80 border-b border-gray-200/80 text-[11px] font-semibold text-gray-500 uppercase tracking-wider hidden sm:table-header-group">
             <tr>
               <th scope="col" className="w-12 px-4 py-3.5 text-center">
@@ -86,14 +86,34 @@ export const UserTable: React.FC<UserTableProps> = ({
                   className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500/30 cursor-pointer"
                 />
               </th>
+              <th scope="col" className="w-16 px-4 py-3.5">
+                <button
+                  type="button"
+                  onClick={() => onSort('id')}
+                  className="flex items-center gap-1 hover:text-gray-900 focus:outline-none transition-colors cursor-pointer"
+                >
+                  <span>ID</span>
+                  {renderSortIcon('id')}
+                </button>
+              </th>
               <th scope="col" className="px-4 py-3.5">
                 <button
                   type="button"
                   onClick={() => onSort('name')}
                   className="flex items-center gap-1 hover:text-gray-900 focus:outline-none transition-colors cursor-pointer"
                 >
-                  <span>User</span>
+                  <span>Name</span>
                   {renderSortIcon('name')}
+                </button>
+              </th>
+              <th scope="col" className="px-4 py-3.5">
+                <button
+                  type="button"
+                  onClick={() => onSort('email')}
+                  className="flex items-center gap-1 hover:text-gray-900 focus:outline-none transition-colors cursor-pointer"
+                >
+                  <span>Email</span>
+                  {renderSortIcon('email')}
                 </button>
               </th>
               <th scope="col" className="px-4 py-3.5">
@@ -112,21 +132,8 @@ export const UserTable: React.FC<UserTableProps> = ({
                   onClick={() => onSort('status')}
                   className="flex items-center gap-1 hover:text-gray-900 focus:outline-none transition-colors cursor-pointer"
                 >
-                  <span>Account Status</span>
+                  <span>Status</span>
                   {renderSortIcon('status')}
-                </button>
-              </th>
-              <th scope="col" className="px-4 py-3.5">
-                <span>Department & Location</span>
-              </th>
-              <th scope="col" className="px-4 py-3.5">
-                <button
-                  type="button"
-                  onClick={() => onSort('lastActiveAt')}
-                  className="flex items-center gap-1 hover:text-gray-900 focus:outline-none transition-colors cursor-pointer"
-                >
-                  <span>Activity</span>
-                  {renderSortIcon('lastActiveAt')}
                 </button>
               </th>
               <th scope="col" className="px-4 py-3.5 text-right">
@@ -146,31 +153,22 @@ export const UserTable: React.FC<UserTableProps> = ({
                     <div className="w-4 h-4 bg-gray-200 rounded mx-auto" />
                   </td>
                   <td className="px-4 py-4">
+                    <div className="h-4 bg-gray-200 rounded w-8" />
+                  </td>
+                  <td className="px-4 py-4">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-gray-200 shrink-0" />
-                      <div className="space-y-1.5 flex-1 max-w-[180px]">
-                        <div className="h-3.5 bg-gray-200 rounded w-3/4" />
-                        <div className="h-3 bg-gray-100 rounded w-1/2" />
-                      </div>
+                      <div className="w-8 h-8 rounded-full bg-gray-200 shrink-0" />
+                      <div className="h-3.5 bg-gray-200 rounded w-28" />
                     </div>
                   </td>
                   <td className="px-4 py-4">
-                    <div className="h-5 bg-gray-200 rounded-md w-20" />
+                    <div className="h-3.5 bg-gray-100 rounded w-44" />
                   </td>
                   <td className="px-4 py-4">
-                    <div className="h-6 bg-gray-200 rounded-full w-24" />
+                    <div className="h-5 bg-gray-200 rounded-md w-36" />
                   </td>
                   <td className="px-4 py-4">
-                    <div className="space-y-1 max-w-[140px]">
-                      <div className="h-3.5 bg-gray-200 rounded w-3/4" />
-                      <div className="h-3 bg-gray-100 rounded w-1/2" />
-                    </div>
-                  </td>
-                  <td className="px-4 py-4">
-                    <div className="space-y-1 max-w-[100px]">
-                      <div className="h-3 bg-gray-200 rounded w-full" />
-                      <div className="h-2.5 bg-gray-100 rounded w-2/3" />
-                    </div>
+                    <div className="h-6 bg-gray-200 rounded-full w-20" />
                   </td>
                   <td className="px-4 py-4 text-right">
                     <div className="h-7 bg-gray-200 rounded-lg w-16 ml-auto" />

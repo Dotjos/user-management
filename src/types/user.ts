@@ -1,28 +1,22 @@
-export type UserStatus = 'Active' | 'Pending' | 'Suspended' | 'Inactive';
+export type UserStatus = 'Active' | 'Inactive';
 
-export type UserRole = 'Admin' | 'Manager' | 'Developer' | 'Designer' | 'Support';
+export type UserRole = string;
 
 export interface User {
   id: string;
   name: string;
   email: string;
-  role: UserRole;
+  role: string;
   status: UserStatus;
-  avatarUrl: string;
-  department: string;
-  location: string;
-  createdAt: string;
-  lastActiveAt: string;
-  notes?: string;
 }
 
-export type SortField = 'name' | 'createdAt' | 'lastActiveAt' | 'role' | 'status';
+export type SortField = 'id' | 'name' | 'email' | 'role' | 'status';
 export type SortOrder = 'asc' | 'desc';
 
 export interface UserFilters {
   search: string;
   status: 'All' | UserStatus;
-  role: 'All' | UserRole;
+  role: 'All' | string;
   sortBy: SortField;
   sortOrder: SortOrder;
 }
@@ -30,21 +24,19 @@ export interface UserFilters {
 export interface UserStats {
   total: number;
   active: number;
-  pending: number;
-  suspended: number;
   inactive: number;
 }
 
 export interface CreateUserInput {
   name: string;
   email: string;
-  role: UserRole;
+  role: string;
   status: UserStatus;
-  department: string;
-  location: string;
-  notes?: string;
 }
 
-export interface UpdateUserInput extends Partial<CreateUserInput> {
+export interface UpdateUserInput {
+  name?: string;
+  email?: string;
+  role?: string;
   status?: UserStatus;
 }

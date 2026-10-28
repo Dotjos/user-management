@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { User, UserRole, UserStatus, UpdateUserInput } from '../types/user';
+import { User, UserStatus, UpdateUserInput } from '../types/user';
 import { StatusBadge } from './StatusBadge';
-import { X, Save, Calendar, Clock, MapPin, Building, ShieldCheck, Mail, User as UserIcon } from 'lucide-react';
+import { X, Save, ShieldCheck, Mail, User as UserIcon } from 'lucide-react';
 
 interface UserModalProps {
   user: User | null;
@@ -11,12 +11,9 @@ interface UserModalProps {
   isMutating?: boolean;
 }
 
-const ROLES: UserRole[] = ['Admin', 'Manager', 'Developer', 'Designer', 'Support'];
 const STATUSES: { status: UserStatus; desc: string }[] = [
-  { status: 'Active', desc: 'Full account access' },
-  { status: 'Pending', desc: 'Awaiting email or 2FA verification' },
-  { status: 'Suspended', desc: 'Blocked from login and API tokens' },
-  { status: 'Inactive', desc: 'Deactivated account' }
+  { status: 'Active', desc: 'Account is active and operational' },
+  { status: 'Inactive', desc: 'Account is deactivated' }
 ];
 
 export const UserModal: React.FC<UserModalProps> = ({
@@ -34,10 +31,7 @@ export const UserModal: React.FC<UserModalProps> = ({
       setFormData({
         name: user.name,
         email: user.email,
-        role: user.role,
-        department: user.department,
-        location: user.location,
-        notes: user.notes || ''
+        role: user.role
       });
       setSelectedStatus(user.status);
     }
@@ -56,15 +50,13 @@ export const UserModal: React.FC<UserModalProps> = ({
     }
   };
 
-  const formatDate = (isoString: string) => {
-    try {
-      return new Date(isoString).toLocaleString('en-US', {
-        dateStyle: 'medium',
-        timeStyle: 'short'
-      });
-    } catch {
-      return isoString;
-    }
+  const getInitials = (name: string) => {
+    return name
+      .split(' ')
+      .map((n) => n[0])
+      .slice(0, 2)
+      .join('')
+      .toUpperCase();
   };
 
   return (
@@ -73,26 +65,19 @@ export const UserModal: React.FC<UserModalProps> = ({
       onClick={onClose}
     >
       <div
-        className="bg-white rounded-2xl max-w-xl w-full shadow-2xl border border-gray-100 overflow-hidden animate-in zoom-in-95 duration-150"
+        className="bg-white rounded-2xl max-w-md w-full shadow-2xl border border-gray-100 overflow-hidden animate-in zoom-in-95 duration-150"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Modal Header */}
         <div className="flex items-start justify-between p-6 border-b border-gray-100 bg-gray-50/50">
-          <div className="flex items-center gap-4">
-            <div className="relative w-14 h-14 rounded-full overflow-hidden border-2 border-white shadow-md bg-gray-100">
-              <img
-                src={user.avatarUrl}
-                alt={user.name}
-                className="w-full h-full object-cover"
-                onError={(e) => {
-                  (e.target as HTMLElement).style.display = 'none';
-                }}
-              />
+          <div className="flex items-center gap-3.5">
+            <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-600 text-white flex items-center justify-center font-bold text-base shadow-sm shrink-0">
+              {getInitials(user.name)}
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="text-lg font-bold text-gray-900">{user.name}</h3>
-                <StatusBadge status={selectedStatus} />
+                <span className="font-mono text-xs font-semibold text-gray-400">#{user.id}</span>
+                <h3 className="text-base font-bold text-gray-900">{user.name}</h3>
               </div>
               <p className="text-xs text-gray-500 mt-0.5">{user.email}</p>
             </div>
@@ -107,7 +92,7 @@ export const UserModal: React.FC<UserModalProps> = ({
         </div>
 
         {/* Modal Form */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-5">
+        <form onSubmit={handleSubmit} className="p-6 space-y-4">
           {/* Status Selection Pill Box */}
           <div>
             <label className="block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-2">
@@ -128,114 +113,60 @@ export const UserModal: React.FC<UserModalProps> = ({
                     }`}
                   >
                     <div className="flex items-center justify-between">
-                      <span className="font-semibold text-xs text-gray-900">{status}</span>
+                      <StatusBadge status={status} size="sm" showIcon={false} />
                       {isCurrent && (
                         <span className="w-2 h-2 rounded-full bg-blue-600" />
                       )}
                     </div>
-                    <span className="text-[11px] text-gray-500 mt-0.5 leading-tight">{desc}</span>
+                    <span className="text-[11px] text-gray-500 mt-1 leading-tight">{desc}</span>
                   </button>
                 );
               })}
             </div>
           </div>
 
-          {/* User Fields Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-xs font-medium text-gray-700 mb-1">Full Name</label>
-              <div className="relative">
-                <UserIcon className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-                <input
-                  type="text"
-                  required
-                  value={formData.name || ''}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className="w-full pl-9 pr-3 py-2 text-sm rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-xs font-medium text-gray-700 mb-1">Email Address</label>
-              <div className="relative">
-                <Mail className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-                <input
-                  type="email"
-                  required
-                  value={formData.email || ''}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  className="w-full pl-9 pr-3 py-2 text-sm rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-xs font-medium text-gray-700 mb-1">Role</label>
-              <div className="relative">
-                <ShieldCheck className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-                <select
-                  value={formData.role || 'Developer'}
-                  onChange={(e) => setFormData({ ...formData, role: e.target.value as UserRole })}
-                  className="w-full pl-9 pr-3 py-2 text-sm rounded-lg border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
-                >
-                  {ROLES.map((r) => (
-                    <option key={r} value={r}>
-                      {r}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-xs font-medium text-gray-700 mb-1">Department</label>
-              <div className="relative">
-                <Building className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-                <input
-                  type="text"
-                  value={formData.department || ''}
-                  onChange={(e) => setFormData({ ...formData, department: e.target.value })}
-                  className="w-full pl-9 pr-3 py-2 text-sm rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
-                />
-              </div>
-            </div>
-
-            <div className="sm:col-span-2">
-              <label className="block text-xs font-medium text-gray-700 mb-1">Location</label>
-              <div className="relative">
-                <MapPin className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-                <input
-                  type="text"
-                  value={formData.location || ''}
-                  onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                  className="w-full pl-9 pr-3 py-2 text-sm rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
-                />
-              </div>
-            </div>
-
-            <div className="sm:col-span-2">
-              <label className="block text-xs font-medium text-gray-700 mb-1">Internal Notes</label>
-              <textarea
-                rows={2}
-                value={formData.notes || ''}
-                onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                placeholder="Add security notes, administrative flags, or context..."
-                className="w-full px-3 py-2 text-sm rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+          {/* Form Fields matching { name, email, role } */}
+          <div>
+            <label className="block text-xs font-medium text-gray-700 mb-1">Full Name</label>
+            <div className="relative">
+              <UserIcon className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <input
+                type="text"
+                required
+                value={formData.name || ''}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                className="w-full pl-9 pr-3 py-2 text-sm rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
               />
             </div>
           </div>
 
-          {/* Audit Timestamps */}
-          <div className="p-3 bg-gray-50 rounded-xl flex items-center justify-between text-[11px] text-gray-500">
-            <span className="flex items-center gap-1.5">
-              <Calendar className="w-3.5 h-3.5" />
-              <span>Created {formatDate(user.createdAt)}</span>
-            </span>
-            <span className="flex items-center gap-1.5">
-              <Clock className="w-3.5 h-3.5" />
-              <span>Last active {formatDate(user.lastActiveAt)}</span>
-            </span>
+          <div>
+            <label className="block text-xs font-medium text-gray-700 mb-1">Email Address</label>
+            <div className="relative">
+              <Mail className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <input
+                type="email"
+                required
+                value={formData.email || ''}
+                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                className="w-full pl-9 pr-3 py-2 text-sm rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-xs font-medium text-gray-700 mb-1">Role / Job Title</label>
+            <div className="relative">
+              <ShieldCheck className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <input
+                type="text"
+                required
+                value={formData.role || ''}
+                onChange={(e) => setFormData({ ...formData, role: e.target.value })}
+                placeholder="e.g. Senior Mobility Orchestrator"
+                className="w-full pl-9 pr-3 py-2 text-sm rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+              />
+            </div>
           </div>
 
           {/* Modal Footer */}

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { CreateUserInput, UserRole, UserStatus } from '../types/user';
-import { X, UserPlus, Mail, User as UserIcon, Building, MapPin, ShieldCheck } from 'lucide-react';
+import { CreateUserInput, UserStatus } from '../types/user';
+import { X, UserPlus, Mail, User as UserIcon, ShieldCheck } from 'lucide-react';
 
 interface AddUserModalProps {
   isOpen: boolean;
@@ -8,8 +8,6 @@ interface AddUserModalProps {
   onCreate: (input: CreateUserInput) => Promise<boolean>;
   isMutating?: boolean;
 }
-
-const ROLES: UserRole[] = ['Admin', 'Manager', 'Developer', 'Designer', 'Support'];
 
 export const AddUserModal: React.FC<AddUserModalProps> = ({
   isOpen,
@@ -20,29 +18,23 @@ export const AddUserModal: React.FC<AddUserModalProps> = ({
   const [formData, setFormData] = useState<CreateUserInput>({
     name: '',
     email: '',
-    role: 'Developer',
-    status: 'Active',
-    department: 'Engineering',
-    location: 'Remote',
-    notes: ''
+    role: '',
+    status: 'Active'
   });
 
   if (!isOpen) return null;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.name || !formData.email) return;
+    if (!formData.name.trim() || !formData.email.trim() || !formData.role.trim()) return;
 
     const success = await onCreate(formData);
     if (success) {
       setFormData({
         name: '',
         email: '',
-        role: 'Developer',
-        status: 'Active',
-        department: 'Engineering',
-        location: 'Remote',
-        notes: ''
+        role: '',
+        status: 'Active'
       });
       onClose();
     }
@@ -54,7 +46,7 @@ export const AddUserModal: React.FC<AddUserModalProps> = ({
       onClick={onClose}
     >
       <div
-        className="bg-white rounded-2xl max-w-lg w-full shadow-2xl border border-gray-100 overflow-hidden animate-in zoom-in-95 duration-150"
+        className="bg-white rounded-2xl max-w-md w-full shadow-2xl border border-gray-100 overflow-hidden animate-in zoom-in-95 duration-150"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
@@ -86,7 +78,7 @@ export const AddUserModal: React.FC<AddUserModalProps> = ({
               <input
                 type="text"
                 required
-                placeholder="e.g. Maya Patel"
+                placeholder="e.g. Keegan"
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 className="w-full pl-9 pr-3 py-2 text-sm rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
@@ -101,7 +93,7 @@ export const AddUserModal: React.FC<AddUserModalProps> = ({
               <input
                 type="email"
                 required
-                placeholder="maya.patel@acme.inc"
+                placeholder="e.g. thalia91@yahoo.com"
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                 className="w-full pl-9 pr-3 py-2 text-sm rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
@@ -109,79 +101,31 @@ export const AddUserModal: React.FC<AddUserModalProps> = ({
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="block text-xs font-medium text-gray-700 mb-1">Role</label>
-              <div className="relative">
-                <ShieldCheck className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-                <select
-                  value={formData.role}
-                  onChange={(e) => setFormData({ ...formData, role: e.target.value as UserRole })}
-                  className="w-full pl-9 pr-3 py-2 text-sm rounded-lg border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
-                >
-                  {ROLES.map((r) => (
-                    <option key={r} value={r}>
-                      {r}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-xs font-medium text-gray-700 mb-1">Initial Status</label>
-              <select
-                value={formData.status}
-                onChange={(e) => setFormData({ ...formData, status: e.target.value as UserStatus })}
-                className="w-full px-3 py-2 text-sm rounded-lg border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
-              >
-                <option value="Active">Active</option>
-                <option value="Pending">Pending</option>
-                <option value="Suspended">Suspended</option>
-                <option value="Inactive">Inactive</option>
-              </select>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="block text-xs font-medium text-gray-700 mb-1">Department</label>
-              <div className="relative">
-                <Building className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-                <input
-                  type="text"
-                  placeholder="Engineering"
-                  value={formData.department}
-                  onChange={(e) => setFormData({ ...formData, department: e.target.value })}
-                  className="w-full pl-9 pr-3 py-2 text-sm rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-xs font-medium text-gray-700 mb-1">Location</label>
-              <div className="relative">
-                <MapPin className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-                <input
-                  type="text"
-                  placeholder="San Francisco, CA"
-                  value={formData.location}
-                  onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                  className="w-full pl-9 pr-3 py-2 text-sm rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
-                />
-              </div>
+          <div>
+            <label className="block text-xs font-medium text-gray-700 mb-1">Role / Job Title *</label>
+            <div className="relative">
+              <ShieldCheck className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <input
+                type="text"
+                required
+                placeholder="e.g. Senior Mobility Orchestrator"
+                value={formData.role}
+                onChange={(e) => setFormData({ ...formData, role: e.target.value })}
+                className="w-full pl-9 pr-3 py-2 text-sm rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+              />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-gray-700 mb-1">Notes (Optional)</label>
-            <textarea
-              rows={2}
-              placeholder="Onboarding details..."
-              value={formData.notes}
-              onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-              className="w-full px-3 py-2 text-sm rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
-            />
+            <label className="block text-xs font-medium text-gray-700 mb-1">Account Status</label>
+            <select
+              value={formData.status}
+              onChange={(e) => setFormData({ ...formData, status: e.target.value as UserStatus })}
+              className="w-full px-3 py-2 text-sm rounded-lg border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 cursor-pointer"
+            >
+              <option value="Active">Active</option>
+              <option value="Inactive">Inactive</option>
+            </select>
           </div>
 
           {/* Footer */}

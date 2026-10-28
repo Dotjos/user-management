@@ -7,8 +7,8 @@ const defaultFilters: FilterStateType = {
   search: '',
   status: 'All',
   role: 'All',
-  sortBy: 'createdAt',
-  sortOrder: 'desc'
+  sortBy: 'id',
+  sortOrder: 'asc'
 };
 
 describe('UserFilters component', () => {
@@ -28,7 +28,7 @@ describe('UserFilters component', () => {
       />
     );
 
-    expect(screen.getByPlaceholderText(/Search by name, email, department/i)).toBeInTheDocument();
+    expect(screen.getByPlaceholderText(/Search by name, email, role/i)).toBeInTheDocument();
     expect(screen.getByDisplayValue('All Statuses')).toBeInTheDocument();
     expect(screen.getByDisplayValue('All Roles')).toBeInTheDocument();
     expect(screen.getByText(/Showing/)).toBeInTheDocument();
@@ -51,7 +51,7 @@ describe('UserFilters component', () => {
       />
     );
 
-    const input = screen.getByPlaceholderText(/Search by name, email, department/i);
+    const input = screen.getByPlaceholderText(/Search by name, email, role/i);
     fireEvent.change(input, { target: { value: 'Sarah' } });
 
     expect(handleSearchChange).toHaveBeenCalledWith('Sarah');
@@ -75,9 +75,9 @@ describe('UserFilters component', () => {
     );
 
     const statusSelect = screen.getByDisplayValue('All Statuses');
-    fireEvent.change(statusSelect, { target: { value: 'Suspended' } });
+    fireEvent.change(statusSelect, { target: { value: 'Inactive' } });
 
-    expect(handleStatusChange).toHaveBeenCalledWith('Suspended');
+    expect(handleStatusChange).toHaveBeenCalledWith('Inactive');
   });
 
   it('shows reset button when hasActiveFilters is true and calls onResetFilters', () => {

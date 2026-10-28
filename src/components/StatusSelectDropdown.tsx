@@ -10,10 +10,8 @@ interface StatusSelectDropdownProps {
 }
 
 const ALL_STATUSES: { status: UserStatus; label: string; desc: string }[] = [
-  { status: 'Active', label: 'Active', desc: 'Full account access & permissions' },
-  { status: 'Pending', label: 'Pending', desc: 'Invited or awaiting verification' },
-  { status: 'Suspended', label: 'Suspended', desc: 'Temporarily blocked from access' },
-  { status: 'Inactive', label: 'Inactive', desc: 'Deactivated or offboarded' }
+  { status: 'Active', label: 'Active', desc: 'Account is enabled & active' },
+  { status: 'Inactive', label: 'Inactive', desc: 'Account is deactivated' }
 ];
 
 export const StatusSelectDropdown: React.FC<StatusSelectDropdownProps> = ({
@@ -57,7 +55,7 @@ export const StatusSelectDropdown: React.FC<StatusSelectDropdownProps> = ({
         className={`group inline-flex items-center gap-1.5 p-1 rounded-lg border border-transparent hover:border-gray-200 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all ${
           disabled ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'
         }`}
-        title="Click to change account status"
+        title="Click to update status"
         aria-haspopup="true"
         aria-expanded={isOpen}
       >
@@ -68,7 +66,7 @@ export const StatusSelectDropdown: React.FC<StatusSelectDropdownProps> = ({
       {isOpen && (
         <div
           role="menu"
-          className="absolute left-0 mt-1.5 w-60 rounded-xl bg-white p-1.5 shadow-xl border border-gray-100 ring-1 ring-black/5 z-30 animate-in fade-in zoom-in-95 duration-100"
+          className="absolute left-0 mt-1.5 w-56 rounded-xl bg-white p-1.5 shadow-xl border border-gray-100 ring-1 ring-black/5 z-30 animate-in fade-in zoom-in-95 duration-100"
           onClick={(e) => e.stopPropagation()}
         >
           <div className="px-2 py-1 text-[11px] font-semibold uppercase tracking-wider text-gray-400 border-b border-gray-100 mb-1">
