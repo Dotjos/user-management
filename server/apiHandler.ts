@@ -1,25 +1,9 @@
 import { IncomingMessage, ServerResponse } from 'http';
 import { User, UserStatus } from '../src/types/user';
 
-export const INITIAL_USERS: User[] = [
-  { id: '1', name: 'Sarah Connor', email: 'sarah.connor@acme.inc', role: 'Admin', status: 'Active' },
-  { id: '2', name: 'Marcus Vance', email: 'marcus.vance@acme.inc', role: 'Developer', status: 'Active' },
-  { id: '3', name: 'Elena Rostova', email: 'elena.rostova@acme.inc', role: 'Manager', status: 'Active' },
-  { id: '4', name: 'Devon Lee', email: 'devon.lee@acme.inc', role: 'Designer', status: 'Inactive' },
-  { id: '5', name: 'Aisha Al-Mansoor', email: 'aisha.m@acme.inc', role: 'Admin', status: 'Active' },
-  { id: '6', name: 'Liam Gallagher', email: 'liam.g@acme.inc', role: 'Support', status: 'Inactive' },
-  { id: '7', name: 'Chao Zhang', email: 'chao.zhang@acme.inc', role: 'Developer', status: 'Active' },
-  { id: '8', name: 'Chloe Bennett', email: 'chloe.bennett@acme.inc', role: 'Designer', status: 'Active' },
-  { id: '9', name: 'Mateo Morales', email: 'mateo.morales@acme.inc', role: 'Developer', status: 'Inactive' },
-  { id: '10', name: 'Rachel Green', email: 'rachel.g@acme.inc', role: 'Support', status: 'Inactive' },
-  { id: '11', name: 'Hiroshi Tanaka', email: 'hiroshi.t@acme.inc', role: 'Manager', status: 'Active' },
-  { id: '12', name: 'Zoe Kravitz', email: 'zoe.kravitz@acme.inc', role: 'Support', status: 'Inactive' },
-  { id: '13', name: 'Kofi Mensah', email: 'kofi.mensah@acme.inc', role: 'Developer', status: 'Active' },
-  { id: '14', name: 'Hannah Schmidt', email: 'hannah.s@acme.inc', role: 'Manager', status: 'Inactive' }
-];
 
 // In-memory backend database state
-let usersDb: User[] = JSON.parse(JSON.stringify(INITIAL_USERS));
+// let usersDb: User[] = JSON.parse(JSON.stringify(INITIAL_USERS));
 
 const VALID_STATUSES: UserStatus[] = ['Active', 'Inactive'];
 
